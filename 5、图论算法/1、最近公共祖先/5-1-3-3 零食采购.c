@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#define maxn 500010
-#define maxd 18
+#define maxn 100010
+#define maxd 21
 #define dummyroot 0
 
 int f[maxn][maxd]; // f[i][j] 代表i号结点的第2^j个祖先
@@ -10,12 +10,15 @@ int dep[maxn];     // dep[i] 代表i在这棵树上的深度
 
 // 邻接表实现
 int head[maxn];
-int edge[maxn*2];
-int next[maxn*2];
+int edge[maxn*4];
+int next[maxn*4];
 int cnt;
 
+int w[maxn], fw[maxn][21];  // fw[i][j]代表从根结点到i结点，有多少个种类为j的零食
+
+
 // 队列实现
-int q[maxn];
+int q[maxn*4];
 int front, rear;
 
 void LCA_Init(int n) {
@@ -38,6 +41,7 @@ void LCA_AddEdge(int u, int v) {
 void LCA_PreProcess(int root) {
     front = rear = 0;
     f[root][0] = dummyroot;
+    fw[root][ w[root] ] = 1;
     dep[root] = 0;
     q[rear++] = root;
     while( front < rear ) {
@@ -52,6 +56,10 @@ void LCA_PreProcess(int root) {
                 continue;
             }
             f[v][0] = u;
+            // 树上前缀和
+            for(int j = 1; j <= 20; ++j) {
+                fw[v][j] = fw[u][j] + (w[v] == j ? 1 : 0);
+            }
             dep[v] = dep[u] + 1;
             q[rear++] = v;
         }
@@ -96,9 +104,13 @@ int LCA_Get(int u, int v) {
 */
 
 int main() {
-    int n, q;
+    int n;
+    int q;
     scanf("%d %d", &n, &q);
     LCA_Init(n);
+    for(int i = 1; i <= n; ++i) {
+        scanf("%d", &w[i]);
+    }
     for(int i = 0; i < n-1; ++i) {
         int x, y;
         scanf("%d %d", &x, &y);
@@ -108,9 +120,14 @@ int main() {
     while(q--) {
         int x, y;
         scanf("%d %d", &x, &y);
-        int z = LCA_Get(x, y);
-        // 容斥原理
-        printf("%d\n", (dep[x] - dep[z]) + (dep[y] - dep[z]));
+        int u = LCA_Get(x, y);
+        int ans = 0;
+        // 枚举每一种零食，在 x->u 以及 y->u 的路径和上是否出现过
+        for(int j = 1; j <= 20; ++j) {
+            int val = (fw[x][j] - fw[u][j]) + (fw[y][j] - fw[u][j]) + (w[u] == j ? 1 : 0);
+            ans += (val > 0 ? 1 : 0);
+        } 
+        printf("%d\n", ans);
     }
     return 0;
 }
