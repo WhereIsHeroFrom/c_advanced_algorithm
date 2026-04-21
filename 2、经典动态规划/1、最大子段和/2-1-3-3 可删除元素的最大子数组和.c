@@ -1,3 +1,5 @@
+// 稍微有点变形，所以无法直接套用模板
+
 #include <stdio.h>
 
 #define maxn 100010
