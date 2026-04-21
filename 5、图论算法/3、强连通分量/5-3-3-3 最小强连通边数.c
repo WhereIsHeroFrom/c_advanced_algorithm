@@ -2,11 +2,14 @@
 #include <string.h>
 
 #define MAXN 10010
+#define MAXM 100010
+#define MAXSCC 10010
+#define MAXSCCEDGE 100010
 
-// 邻接表实现
+// 链式前向星邻接表（原图）
 int head[MAXN];
-int edge[MAXN*10];
-int next[MAXN*10];
+int edge[MAXM];
+int next[MAXM];
 int cnt;
 
 // Tarjan 算法所需的数组
@@ -19,18 +22,13 @@ int top;
 int timeStamp;
 int sccCount;
 
-// 存储每个强连通分量的节点
-int sccNodes[MAXN][MAXN];
-int sccSize[MAXN];
-
-// 缩点后的图
-int shrinkHead[MAXN];
-int shrinkEdge[MAXN*10];
-int shrinkNext[MAXN*10];
-int shrinkCnt;
-int ind[MAXN];
-int outd[MAXN];
-int hasEdge[MAXN][MAXN];
+// 缩点后的图（链式前向星）
+int sccHead[MAXSCC];
+int sccEdge[MAXSCCEDGE];
+int sccNext[MAXSCCEDGE];
+int sccCnt;
+int ind[MAXSCC];
+int outd[MAXSCC];
 
 int min(int a, int b) {
     return a < b ? a : b;
@@ -48,20 +46,10 @@ void init(int n) {
         inStack[i] = 0;
         sccId[i] = 0;
     }
-    for(int i = 0; i < MAXN; ++i) {
-        sccSize[i] = 0;
-        shrinkHead[i] = -1;
-        ind[i] = 0;
-        outd[i] = 0;
-        for(int j = 0; j < MAXN; ++j) {
-            hasEdge[i][j] = 0;
-        }
-    }
     cnt = 0;
     top = 0;
     timeStamp = 0;
     sccCount = 0;
-    shrinkCnt = 0;
 }
 
 void addEdge(int u, int v) {
@@ -91,7 +79,6 @@ void tarjanDFS(int u) {
             v = stack[--top];
             inStack[v] = 0;
             sccId[v] = sccCount;
-            sccNodes[sccCount][sccSize[sccCount]++] = v;
         }while(v != u);
         sccCount++;
     }
@@ -105,17 +92,37 @@ void solve(int n) {
     }
 }
 
+// 缩点函数
 void shrinkGraph(int n) {
+    // 初始化缩点后的图
     for(int i = 0; i < sccCount; ++i) {
-        for(int j = 0; j < sccSize[i]; ++j) {
-            int u = sccNodes[i][j];
-            for(int k = head[u]; k != -1; k = next[k]) {
-                int v = edge[k];
-                int sccU = sccId[u];
-                int sccV = sccId[v];
-                if(sccU == sccV) continue;
-                if(hasEdge[sccU][sccV]) continue;
-                hasEdge[sccU][sccV] = 1;
+        sccHead[i] = -1;
+        ind[i] = 0;
+        outd[i] = 0;
+    }
+    sccCnt = 0;
+
+    // 遍历原图的所有边
+    for(int u = 1; u <= n; ++u) {
+        for(int i = head[u]; i != -1; i = next[i]) {
+            int v = edge[i];
+            int sccU = sccId[u];
+            int sccV = sccId[v];
+            if(sccU == sccV) continue;
+
+            // 检查这条边是否已经存在
+            int exists = 0;
+            for(int j = sccHead[sccU]; j != -1; j = sccNext[j]) {
+                if(sccEdge[j] == sccV) {
+                    exists = 1;
+                    break;
+                }
+            }
+            if(!exists) {
+                // 添加新边
+                sccEdge[sccCnt] = sccV;
+                sccNext[sccCnt] = sccHead[sccU];
+                sccHead[sccU] = sccCnt++;
                 outd[sccU]++;
                 ind[sccV]++;
             }

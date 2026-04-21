@@ -2,11 +2,12 @@
 #include <string.h>
 
 #define MAXN 10010
+#define MAXM 100010
 
-// 邻接表实现
+// 链式前向星邻接表
 int head[MAXN];
-int edge[MAXN*10];
-int next[MAXN*10];
+int edge[MAXM];
+int next[MAXM];
 int cnt;
 
 // Tarjan 算法所需的数组
@@ -34,6 +35,7 @@ void init(int n) {
         inStack[i] = 0;
         sccId[i] = 0;
     }
+    // 初始化 sccSize 数组，包括 0 号强连通分量
     for(int i = 0; i < MAXN; ++i) {
         sccSize[i] = 0;
     }

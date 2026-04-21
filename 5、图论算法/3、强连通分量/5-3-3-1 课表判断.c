@@ -2,11 +2,12 @@
 #include <string.h>
 
 #define MAXN 10010
+#define MAXM 100010
 
-// 邻接表实现
+// 链式前向星邻接表
 int head[MAXN];
-int edge[MAXN*10];
-int next[MAXN*10];
+int edge[MAXM];
+int next[MAXM];
 int cnt;
 
 // Tarjan 算法所需的数组
@@ -93,7 +94,7 @@ int main() {
         if( sccCount == n ) {
             printf("YES\n");
         }else {
-            printf("NO\n"); 
+            printf("NO\n");
         }
     }
     return 0;

@@ -3,11 +3,12 @@
 #include <stdlib.h>
 
 #define MAXN 10010
+#define MAXM 100010
 
-// 邻接表实现
+// 链式前向星邻接表
 int head[MAXN];
-int edge[MAXN*10];
-int next[MAXN*10];
+int edge[MAXM];
+int next[MAXM];
 int cnt;
 
 // Tarjan 算法所需的数组
@@ -20,9 +21,8 @@ int top;
 int timeStamp;
 int sccCount;
 
-// 存储每个强连通分量的节点
-int sccNodes[MAXN][MAXN];
-int sccSize[MAXN];
+// 存储每个强连通分量的最小节点值
+int sccMin[MAXN];
 
 int min(int a, int b) {
     return a < b ? a : b;
@@ -35,7 +35,6 @@ void init(int n) {
         low[i] = 0;
         inStack[i] = 0;
         sccId[i] = 0;
-        sccSize[i] = 0;
     }
     cnt = 0;
     top = 0;
@@ -66,12 +65,16 @@ void tarjanDFS(int u) {
 
     if(dfn[u] == low[u]) {
         int v;
+        int min_val = u;
         do {
             v = stack[--top];
             inStack[v] = 0;
             sccId[v] = sccCount;
-            sccNodes[sccCount][sccSize[sccCount]++] = v;
+            if(v < min_val) {
+                min_val = v;
+            }
         }while(v != u);
+        sccMin[sccCount] = min_val;
         sccCount++;
     }
 }
@@ -100,19 +103,9 @@ int main() {
     solve(n);
     printf("%d\n", sccCount);
 
-    int ret[MAXN];
+    qsort(sccMin, sccCount, sizeof(int), compare);
     for(int i = 0; i < sccCount; ++i) {
-        int min_val = sccNodes[i][0];
-        for(int j = 1; j < sccSize[i]; ++j) {
-            if(sccNodes[i][j] < min_val) {
-                min_val = sccNodes[i][j];
-            }
-        }
-        ret[i] = min_val;
-    }
-    qsort(ret, sccCount, sizeof(int), compare);
-    for(int i = 0; i < sccCount; ++i) {
-        printf("%d\n", ret[i]);
+        printf("%d\n", sccMin[i]);
     }
     return 0;
 }
