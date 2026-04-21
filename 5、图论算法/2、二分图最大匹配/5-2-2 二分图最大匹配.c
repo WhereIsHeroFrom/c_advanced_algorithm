@@ -8,6 +8,9 @@
 
 #define maxn 510
 #define maxm 510
+#define false 0
+#define true 1
+#define bool int
 
 // 邻接表实现
 int head[maxn];
