@@ -9,7 +9,9 @@
 2、所有的格子 GridType 都是 -1 (EMPTY)
 3、根据 (Mask::UP|Mask::LEFT) 满足约束填入 1 (ONE)
 */
-
+#define false 0
+#define true 1
+#define bool int
 #define maxn 21
 #define maxm 21
 #define type long long

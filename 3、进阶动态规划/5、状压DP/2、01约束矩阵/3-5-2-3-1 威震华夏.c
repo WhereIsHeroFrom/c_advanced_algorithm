@@ -9,7 +9,9 @@
 2、输入1的GridType就是-1 (EMPTY)，否则是0 (ZERO)
 3、根据 (Mask::UP|Mask::LEFT) 满足约束填入 1 (ONE)
 */
-
+#define false 0
+#define true 1
+#define bool int
 #define maxn 13
 #define maxm 13
 #define type long long
