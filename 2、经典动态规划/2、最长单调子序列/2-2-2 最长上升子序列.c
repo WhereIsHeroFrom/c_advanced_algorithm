@@ -1,14 +1,12 @@
 #include <stdio.h>
 
+////////////////LIS模板////////////////
+// a[i]  < g[mid] 时，求不降
+// a[i] <= g[mid] 时，求递增
 #define maxn 5010
-
-int a[maxn];
-
-// 这个模板是用来求最长递增子序列的
-// 如果要求单调不降，只需要把 a[i] <= g[mid] 改成 a[i] < g[mid]
 int getLIS(int n, int a[], int dp[]) {
-    // g[i] 代表长度为 i 的最长递增子序列的
-    // 最后一个数是什么
+    // g[i] 代表长度为 i 的
+    // 最长单调子序列的最后一个数是什么
     int g[maxn], gSize = 0;
     for(int i = 0; i < n; ++i) {
         // g[] = {1, 4, 5, 7, 8}   
@@ -31,7 +29,10 @@ int getLIS(int n, int a[], int dp[]) {
     }
     return gSize;
 }
+////////////////LIS模板////////////////
 
+
+int a[maxn];
 int dp[maxn];
 
 int main() {
