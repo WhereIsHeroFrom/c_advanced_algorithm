@@ -1,12 +1,14 @@
 #include <stdio.h>
 
+/////////////////////LCS模板/////////////////////
 #define maxn 1010
 #define maxm 1010
 #define type int
 
 int getLCS(int n, type a[], int m, type b[],
     int dp[maxn][maxm], char path[maxn][maxm]) {
-        // dp[i][j] 代表 a[1:i] 和 b[1:j] 这两个数组的最长公共子序列的长度
+        // dp[i][j] 代表 a[1:i] 和 b[1:j] 
+        // 这两个数组的最长公共子序列的长度
         // return dp[n][m];
     for(int i = 1; i <= n; ++i) {
         for(int j = 1; j <= m; ++j) {
@@ -24,6 +26,7 @@ int getLCS(int n, type a[], int m, type b[],
     }
     return dp[n][m];
 }
+/////////////////////LCS模板/////////////////////
 
 int dp[maxn][maxm];
 char path[maxn][maxm];
