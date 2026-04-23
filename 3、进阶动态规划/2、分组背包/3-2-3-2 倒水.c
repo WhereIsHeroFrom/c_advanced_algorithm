@@ -6,6 +6,7 @@
 3、每组物品必须选择恰好一个
 */
 
+////////////////////////////////////分组背包模板////////////////////////////////////
 #define maxn 1010
 #define maxc 3
 #define maxv 1010
@@ -33,8 +34,9 @@ void KnapsackGroup(int n, int V, struct Item items[], vType dp[maxn][maxv]) {
 
     for(int i = 1; i <= n; ++i) {
         for(int j = 0; j <= V; ++j) {
-            // 前i组物品凑出容量为j的最优价值
-            // 模板稍微改一下，第i个物品不允许不选择的情况
+            // 前i组物品凑出容量为 j 的最优价值
+            // dp[i][j] = dp[i-1][j];  代表第 i 组物品可以不选择
+            // dp[i][j] = inf;         代表第 i 组物品必须恰好选择1个
             dp[i][j] = inf;
             for(int k = 0; k < items[i].cnt; ++k) {
                 if(j >= items[i].w[k]) {
@@ -45,6 +47,7 @@ void KnapsackGroup(int n, int V, struct Item items[], vType dp[maxn][maxv]) {
         }
     }
 }
+////////////////////////////////////分组背包模板////////////////////////////////////
 
 struct Item items[maxn];
 vType dp[maxn][maxv];

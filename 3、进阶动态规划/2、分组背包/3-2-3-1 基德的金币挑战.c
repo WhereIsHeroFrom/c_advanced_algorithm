@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+////////////////////////////////////分组背包模板////////////////////////////////////
 #define maxn 1010
 #define maxc 2010
 #define maxv 2010
@@ -27,7 +28,9 @@ void KnapsackGroup(int n, int V, struct Item items[], vType dp[maxn][maxv]) {
 
     for(int i = 1; i <= n; ++i) {
         for(int j = 0; j <= V; ++j) {
-            // 前i组物品凑出容量为j的最优价值
+            // 前i组物品凑出容量为 j 的最优价值
+            // dp[i][j] = dp[i-1][j];  代表第 i 组物品可以不选择
+            // dp[i][j] = inf;         代表第 i 组物品必须恰好选择1个
             dp[i][j] = dp[i-1][j];
             for(int k = 0; k < items[i].cnt; ++k) {
                 if(j >= items[i].w[k]) {
@@ -38,6 +41,7 @@ void KnapsackGroup(int n, int V, struct Item items[], vType dp[maxn][maxv]) {
         }
     }
 }
+////////////////////////////////////分组背包模板////////////////////////////////////
 
 struct Item items[maxn];
 vType dp[maxn][maxv];
