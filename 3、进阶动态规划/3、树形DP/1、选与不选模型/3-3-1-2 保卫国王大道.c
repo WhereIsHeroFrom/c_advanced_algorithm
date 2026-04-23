@@ -1,23 +1,17 @@
-//////////////////////////////////////////////////////////////////////
-///////////////////////简单树形DP模板（选or不选）///////////////////////
-//////////////////////////////////////////////////////////////////////
 #include <stdio.h>
 #include <string.h>
 
+//////////////////////////////////////////////////////////////////////
+///////////////////////简单树形DP模板（选or不选）///////////////////////
+//////////////////////////////////////////////////////////////////////
+
 #define type int
 #define maxn 200010
-#define maxm 400010 // 每个边存储两次
+#define maxm 400010
 #define inf 1000000000
 
-int n;
-// dp[i][0] 代表以 i 为根节点的子树，且根节点不选的最大（小）价值（或方案数）
-// dp[i][1] 代表以 i 为根节点的子树，且根节点  选的最大（小）价值（或方案数）
 type dp[maxn][2];
-
-// 邻接表存储树
-int head[maxn];
-int edge[maxm];
-int next[maxm];
+int head[maxn], edge[maxm], next[maxm];
 int cnt;
 
 void add_edge(int a, int b) {
@@ -27,15 +21,21 @@ void add_edge(int a, int b) {
 }
 
 // 每个要求题目不同，需要做修改
+type min(type a, type b) {
+    return a < b ? a : b;
+}
+
+void TreeDPSimple_AddEdge(int a, int b) {
+    add_edge(a, b);
+    add_edge(b, a);
+}
+
+// 每个要求题目不同，需要做修改
 type TreeDPSimple_InitVal(int u, int isChoose) {
     return isChoose;
 }
 
 // 每个要求题目不同，需要做修改
-type min(type a, type b) {
-    return a < b ? a : b;
-}
-
 type TreeDPSimple_Opt(type curVal, int isChoose, type ncVal, type cVal) {
     if(isChoose) {
         return curVal + min(ncVal, cVal);
@@ -73,13 +73,13 @@ type TreeDPSimple_DFS(int u, int isChoose, int fat) {
 //////////////////////////////////////////////////////////////////////
 
 int main() {
+    int n;
     scanf("%d", &n);
     TreeDPSimple_Init(n);
     for(int i = 0; i < n - 1; ++i) {
         int a, b;
         scanf("%d %d", &a, &b);
-        add_edge(a, b);
-        add_edge(b, a);
+        TreeDPSimple_AddEdge(a, b);
     }
     type ans = min(
         TreeDPSimple_DFS(1, 1, 0),
