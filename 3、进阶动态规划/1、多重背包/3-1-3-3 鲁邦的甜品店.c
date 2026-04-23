@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+////////////////////////////////////////////多重背包模板////////////////////////////////////////////
 #define maxn 101
 #define maxc 10
 #define maxv 1001
@@ -48,6 +49,7 @@ void KnapsackMultiple(int n, int V, int w[maxn], vType v[maxn], int c[maxn], vTy
     }
     Knapsack01(m, V, nw, nv, dp);
 }
+////////////////////////////////////////////多重背包模板////////////////////////////////////////////
 
 int w[maxn], c[maxn];
 vType v[maxn];
