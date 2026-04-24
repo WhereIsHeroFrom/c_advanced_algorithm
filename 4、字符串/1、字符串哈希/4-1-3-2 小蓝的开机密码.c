@@ -14,60 +14,65 @@ hash(0, r) - hash(0, l-1) * B^{r-l+1}
 #include <stdio.h>
 #include <string.h>
 
-////////////////////////////////////////////////
-/////////////////字符串hash模板//////////////////
-////////////////////////////////////////////////
+//////////////字符串哈希模板//////////////
 #define maxn 1000010
 #define ull unsigned long long
 #define B 271
+
 ull Power[maxn];
 ull Hash[maxn];
 
-void init(char* s) {
+void init(char *s) {
     int len = strlen(s);
     Power[0] = 1;
     Hash[0] = s[0];
-    for(int i = 1; i < len; ++i) {
+    for(int i = 1; i < len; ++i){
         Hash[i] = Hash[i-1] * B + s[i];
         Power[i] = Power[i-1] * B;
     }
 }
 
 ull get(int l, int r) {
-    // Hash[r] - Hash[l-1] * B ^ {r-l+1}
     if(l == 0) {
         return Hash[r];
     }
     return Hash[r] - Hash[l-1] * Power[r-l+1];
 }
-////////////////////////////////////////////////
+
+//////////////字符串哈希模板//////////////
+
+char s[maxn];
+
+#define bool int
+#define true 1
+#define false 0
+
+bool check(char* s, int slen, int len) {
+    for(int i = 0; i + 2*len - 1 < slen; ++i) {
+        int l = i;
+        int r = i + len - 1;
+        ull v = get(l, r);
+        for(int j = r+1; j+len-1 < slen; ++j) {
+            if(v == get(j, j+len-1)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 int main() {
-    char s[maxn];
     scanf("%s", s);
     int n = strlen(s);
     init(s);
-    // 1、逆序枚举满足条件的长度，如果发现有一个长度满足条件，直接跳出
+
     int l = -1, r = n/2 + 1;
     while(l + 1 < r) {
-        int i = (l + r) / 2;
-        int check = 0;
-        for(int j = 0; j + 2*i - 1 < n; ++j) {
-            int L = j;
-            int R = j + i - 1;
-            ull v = get(L, R);
-            for(int k = R+1; k + i - 1 < n; ++k) {
-                if(v == get(k, k + i - 1)) {
-                    check = 1;
-                    break;
-                }
-            }
-            if(check) break;
-        }
-        if(check) {
-            l = i;
+        int mid = (l + r) >> 1;
+        if( check(s, n, mid) ) {
+            l = mid;
         }else {
-            r = i;
+            r = mid;
         }
     }
     printf("%d\n", l);

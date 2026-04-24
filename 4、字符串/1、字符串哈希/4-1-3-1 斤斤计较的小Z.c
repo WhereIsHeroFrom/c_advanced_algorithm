@@ -14,44 +14,45 @@ hash(0, r) - hash(0, l-1) * B^{r-l+1}
 #include <stdio.h>
 #include <string.h>
 
-////////////////////////////////////////////////
-/////////////////×Ö·û´®hashÄ£°å//////////////////
-////////////////////////////////////////////////
+//////////////×Ö·û´®¹þÏ£Ä£°å//////////////
 #define maxn 1000010
 #define ull unsigned long long
 #define B 271
+
 ull Power[maxn];
 ull Hash[maxn];
 
-void init(char* s) {
+void init(char *s) {
     int len = strlen(s);
     Power[0] = 1;
     Hash[0] = s[0];
-    for(int i = 1; i < len; ++i) {
+    for(int i = 1; i < len; ++i){
         Hash[i] = Hash[i-1] * B + s[i];
         Power[i] = Power[i-1] * B;
     }
 }
 
 ull get(int l, int r) {
-    // Hash[r] - Hash[l-1] * B ^ {r-l+1}
     if(l == 0) {
         return Hash[r];
     }
     return Hash[r] - Hash[l-1] * Power[r-l+1];
 }
-////////////////////////////////////////////////
+
+//////////////×Ö·û´®¹þÏ£Ä£°å//////////////
+
+char s1[maxn], s2[maxn];
+
 int main() {
-    char a[maxn], b[maxn];
-    scanf("%s %s", a, b);
-    init(a);
-    int len_a = strlen(a);
-    ull v = get(0, len_a - 1);
-    int len_b = strlen(b);
+    scanf("%s %s", s1, s2);
+    init(s1);
+    int s1len = strlen(s1);
+    int s2len = strlen(s2);
+    ull v = get(0, s1len-1);
     int ans = 0;
-    init(b);
-    for(int i = 0; i + len_a - 1 < len_b; ++i) {
-        if( get(i, i + len_a - 1) == v ) {
+    init(s2);
+    for(int i = 0; i + s1len-1 < s2len ; ++i) {
+        if( get(i, i + s1len-1) == v ) {
             ++ans;
         }
     }
