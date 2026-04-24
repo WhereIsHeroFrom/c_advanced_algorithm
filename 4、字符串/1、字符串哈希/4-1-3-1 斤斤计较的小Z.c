@@ -41,7 +41,6 @@ ull get(int l, int r) {
     return Hash[r] - Hash[l-1] * Power[r-l+1];
 }
 ////////////////////////////////////////////////
-
 int main() {
     char a[maxn], b[maxn];
     scanf("%s %s", a, b);
