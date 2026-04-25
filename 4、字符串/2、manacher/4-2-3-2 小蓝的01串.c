@@ -1,12 +1,20 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAXN 1000010
+////////////////////////////manacher模板////////////////////////////
+#define maxn 1000010
 #define SPLIT '$'
-int p[MAXN];
-char strTmp[MAXN];
+int p[maxn];
+char strTmp[maxn];
 
-void ManacherPre(char *str) {
+int manacherMatch(char a, char b) {
+    if(a == b) {
+        return a == SPLIT;
+    }
+    return (a - '0') + (b - '0') == 1; 
+}
+
+void manacherPre(char *str) {
     strcpy(strTmp, str);
     int i;
     for(i = 0; strTmp[i]; ++i) {
@@ -21,15 +29,8 @@ int min(int a, int b) {
     return a < b ? a : b;
 }
 
-int ManacherMatch(char a, char b) {
-    if(a == b) {
-        return a == SPLIT;
-    }
-    return (a - '0') + (b - '0') == 1; 
-}
-
 int Manacher(char *str) {
-    ManacherPre(str);
+    manacherPre(str);
     // ct  : 当前已知最右回文区域的中心位置
     //  r  : 当前已知最右回文区域的右边界（即ct + p[ct]）
     // p[] : 记录每个位置的回文半径
@@ -44,7 +45,7 @@ int Manacher(char *str) {
         }
 
         // 2.扩张p[i]，以适应达到p[i]最大值 
-        while(i-p[i]>=0 && ManacherMatch(str[i-p[i]], str[i+p[i]]) )
+        while(i-p[i]>=0 && manacherMatch(str[i-p[i]], str[i+p[i]]) )
             ++p[i];
 
         // 3.更新ct
@@ -59,6 +60,8 @@ int Manacher(char *str) {
     }
     return maxLen; 
 }
+////////////////////////////manacher模板////////////////////////////
+
 
 /*
 1、首先，满足要求的子串一定是偶数长度的。
@@ -76,7 +79,7 @@ int Manacher(char *str) {
 4、最后统计这样的偶数串的个数，做简单的计数操作即可
 */
 
-char str[MAXN];
+char str[maxn];
 
 int main() {
     int n;

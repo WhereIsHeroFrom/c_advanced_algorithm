@@ -1,12 +1,17 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAXN 2000010
+////////////////////////////manacher模板////////////////////////////
+#define maxn 1000010
 #define SPLIT '$'
-int p[MAXN];
-char strTmp[MAXN];
+int p[maxn];
+char strTmp[maxn];
 
-void ManacherPre(char *str) {
+int manacherMatch(char a, char b) {
+    return a == b;
+}
+
+void manacherPre(char *str) {
     strcpy(strTmp, str);
     int i;
     for(i = 0; strTmp[i]; ++i) {
@@ -21,12 +26,8 @@ int min(int a, int b) {
     return a < b ? a : b;
 }
 
-int ManacherMatch(char a, char b) {
-    return a == b;
-}
-
 int Manacher(char *str) {
-    ManacherPre(str);
+    manacherPre(str);
     // ct  : 当前已知最右回文区域的中心位置
     //  r  : 当前已知最右回文区域的右边界（即ct + p[ct]）
     // p[] : 记录每个位置的回文半径
@@ -41,7 +42,7 @@ int Manacher(char *str) {
         }
 
         // 2.扩张p[i]，以适应达到p[i]最大值 
-        while(i-p[i]>=0 && ManacherMatch(str[i-p[i]], str[i+p[i]]) )
+        while(i-p[i]>=0 && manacherMatch(str[i-p[i]], str[i+p[i]]) )
             ++p[i];
 
         // 3.更新ct
@@ -56,9 +57,10 @@ int Manacher(char *str) {
     }
     return maxLen; 
 }
+////////////////////////////manacher模板////////////////////////////
 
-char str[MAXN];
-int sum[MAXN];
+char str[maxn];
+int sum[maxn];
 
 int getsum(int l, int r) {
     int pre = 0;
