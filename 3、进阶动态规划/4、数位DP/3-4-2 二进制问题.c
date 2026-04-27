@@ -1,22 +1,19 @@
 #include <stdio.h>
 #include <string.h>
-
-#define ll long long
-#define maxd 65
-
+//////////////////////////////////////数位DP模板//////////////////////////////////////
 // 0、修改点，主要修改 data0_max 和 data1_max 的范围
+#define ll long long
+#define maxd 100
 #define data0_max maxd
 #define data1_max 2
-
-// dp[depth][is_leadingZero][is_limit][data0][data1]
-ll dp[maxd][2][2][data0_max][data1_max];
 
 // 1、修改点，通过输入数据进行输入
 ll K;
 // 2、修改点，通过题目条件进行修改，二进制就是 2，十进制就是 10，也有可能通过输入数据输入
 ll base = 2;
+// dp[depth][is_leadingZero][is_limit][data0][data1]
+ll dp[maxd][2][2][data0_max][data1_max];
 
-// DpData 结构体
 typedef struct {
     ll data0;
     ll data1;
@@ -51,15 +48,13 @@ void DpData_getNextDpData(DpData* this, DpData* ret, int is_leadingZero, int dig
     }
 }
 
-// 十进制下
-// 12345
-// 10893
-ll dfs(
-    const char* num,    // 数字字符串
-    int depth,          // 当前枚举到的是第几个数位
-    int is_leadingZero,  // 默认为 1，代表前面枚举的都是0
-    int is_limit,        // 默认为 0，代表前面所有位都和 num 相等
-    DpData dpdata       // 数位DP用到的核心数据结构
+// 固定模板，不需要修改
+ll digitDP_dfs(
+    const char* num,     // 数字字符串
+    int depth,           // 当前枚举到的是第几个数位
+    int is_leadingZero,  // 为 1 时，代表前面枚举的都是0；默认为 1
+    int is_limit,        // 为 1 时，代表前面数位已经 < num 的高位；默认为 0
+    DpData dpdata        // 数位DP用到的核心数据结构
 ) {
     if(depth == (int)strlen(num)) {
         return DpData_dfsReturn(&dpdata, is_leadingZero);
@@ -73,7 +68,7 @@ ll dfs(
     for(int i = 0; i <= maxdigit; ++i) {
         DpData nextDpData;
         DpData_getNextDpData(&dpdata, &nextDpData, is_leadingZero, i);
-        ans += dfs(
+        ans += digitDP_dfs(
             num,
             depth+1,
             is_leadingZero && (i == 0),
@@ -86,7 +81,7 @@ ll dfs(
 }
 
 // 固定模板，不需要修改，求 [0, n] 中所有满足条件的数的数量
-ll getans(ll n) {
+ll DigitDP_GetAns(ll n) {
     memset(dp, -1, sizeof(dp));
     int a[maxd], asize = 0;
     char s[maxd];
@@ -103,17 +98,18 @@ ll getans(ll n) {
     s[asize] = '\0';
     DpData dpd;
     DpData_init(&dpd);
-    return dfs(s, 0, 1, 0, dpd);
+    return digitDP_dfs(s, 0, 1, 0, dpd);
 }
 
 // 固定模板，数位DP的差分操作，求 [l, r] 中所有满足条件的数的个数
-ll getans_range(ll l, ll r) {
-    return getans(r) - getans(l-1);
+ll  DigitDP_GetRange(ll l, ll r) {
+    return DigitDP_GetAns(r) - DigitDP_GetAns(l-1);
 }
+//////////////////////////////////////数位DP模板//////////////////////////////////////
 
 int main() {
     ll r;
     scanf("%lld %lld", &r, &K);
-    printf("%lld\n", getans_range(1, r));
+    printf("%lld\n", DigitDP_GetRange(1, r));
     return 0;
 }
