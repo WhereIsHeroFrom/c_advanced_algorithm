@@ -1,30 +1,28 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 
-///////////////////////////////强连通分量(tarjan模板)///////////////////////////////
-
-#define MAXN 10010
-#define MAXM 100010
+//////////////////强连通分量(tarjan算法)//////////////////
+#define maxn 100010
+#define maxm 100010
 
 typedef struct {
-    int head[MAXN];     // 链式前向星：头节点数组
-    int edge[MAXM];     // 链式前向星：存储边的终点
-    int next[MAXM];     // 链式前向星：存储下一条边的索引
-    int cnt;            // 链式前向星：边的计数器
+    int head[maxn];   // 头结点数组
+    int edge[maxm];   // 存储边的终点
+    int next[maxm];   // 存储下一条边的索引
+    int cnt;          // 边的计数器
 
-    int dfn[MAXN];      // Tarjan：节点的DFS访问时间戳
-    int low[MAXN];      // Tarjan：节点能追溯到的最早时间戳
-    int inStack[MAXN];  // Tarjan：标记节点是否在栈中
-    int sccId[MAXN];    // 每个节点所属的强连通分量编号
-    int stack[MAXN];    // Tarjan：递归栈
-    int top;            // 栈顶指针
-    int timeStamp;      // 全局时间戳
-    int sccCount;       // 强连通分量的总数
+    int dfn[maxn];    // 代表结点的dfs访问时间戳
+    int low[maxn];    // 代表结点能够追溯到的最早时间戳
+    int inStack[maxn];// 标记当前结点是否在栈中
+    int sccId[maxn];  // 每个节点所属的强连通分量编号
+    int stack[maxn];  // 递归时记录当前访问的结点
+    int top;          // 栈顶指针
+    int timeStamp;    // 全局时间戳
+    int sccCount;     // 代表强连通分量的总数
 
-    int sccMin[MAXN];   // 每个强连通分量的最小节点编号
-    int sccSize[MAXN]; // 每个强连通分量的节点数
-    int n;              // 图的总节点数
+    int sccMin[maxn]; // 每个强连通分量的最小节点编号
+    int sccSize[maxn];// 每个强连通分量的结点数
+    int n;            // 图的总结点数
 } Tarjan;
 
 int min(int a, int b) {
@@ -41,60 +39,55 @@ void Tarjan_Initialize(Tarjan *tj, int n) {
     memset(tj->head, -1, sizeof(tj->head));
     memset(tj->dfn, 0, sizeof(tj->dfn));
     memset(tj->low, 0, sizeof(tj->low));
-    memset(tj->inStack, 0, sizeof(tj->inStack));
     memset(tj->sccId, 0, sizeof(tj->sccId));
     memset(tj->sccSize, 0, sizeof(tj->sccSize));
 }
 
 void Tarjan_AddEdge(Tarjan *tj, int u, int v) {
-    tj->edge[tj->cnt] = v;
-    tj->next[tj->cnt] = tj->head[u];
+    tj->edge[ tj->cnt ] = v;
+    tj->next[ tj->cnt ] = tj->head[u];
     tj->head[u] = tj->cnt++;
 }
 
-void tarjan_DFS(Tarjan *tj, int u) {
+void tarjan_dfs(Tarjan *tj, int u) {
     tj->dfn[u] = tj->low[u] = ++tj->timeStamp;
-    tj->stack[tj->top++] = u;
+    tj->stack[  tj->top++ ] = u;
     tj->inStack[u] = 1;
 
     for (int i = tj->head[u]; i != -1; i = tj->next[i]) {
         int v = tj->edge[i];
-        if (!tj->dfn[v]) {
-            tarjan_DFS(tj, v);
+        // (u, v) 是一条有向边
+        if( tj->dfn[v] == 0) {
+            tarjan_dfs(tj, v);
             tj->low[u] = min(tj->low[u], tj->low[v]);
-        } else if (tj->inStack[v]) {
+        }else if (tj->inStack[v]) {
             tj->low[u] = min(tj->low[u], tj->dfn[v]);
         }
     }
 
-    if (tj->dfn[u] == tj->low[u]) {
+    if(tj->dfn[u] == tj->low[u]) {
         int v;
-        int min_val = u;
+        int minval = u;
         do {
             v = tj->stack[--tj->top];
             tj->inStack[v] = 0;
             tj->sccId[v] = tj->sccCount;
             tj->sccSize[tj->sccCount]++;
-            if (v < min_val) min_val = v;
-        } while (v != u);
-
-        tj->sccMin[tj->sccCount] = min_val;
-        tj->sccCount++;
+            minval = min(minval, v);
+        }while (v != u);
+        tj->sccMin[tj->sccCount] = minval;
+        tj->sccCount ++;
     }
 }
 
 void Tarjan_Solve(Tarjan *tj) {
-    for (int i = 1; i <= tj->n; ++i) {
-        if (!tj->dfn[i]) {
-            tarjan_DFS(tj, i);
+    for(int i = 1; i <= tj->n; ++i) {
+        if(!tj->dfn[i]) {
+            tarjan_dfs(tj, i);
         }
     }
 }
-
-int Tarjan_Compare(const void* a, const void* b) {
-    return *(int*)a - *(int*)b;
-}
-///////////////////////////////强连通分量(tarjan模板)///////////////////////////////
+//////////////////强连通分量(tarjan算法)//////////////////
 
 int main() {
     int t;
@@ -109,11 +102,12 @@ int main() {
             scanf("%d %d", &u, &v);
             Tarjan_AddEdge(&tj, u, v);
         }
+
         Tarjan_Solve(&tj);
         long long ans = 0;
         for(int i = 0; i < tj.sccCount; ++i) {
-            int size = tj.sccSize[i];
-            ans += (long long)size * (size - 1) / 2;
+            long long size = tj.sccSize[i];
+            ans += size * (size - 1) / 2;
         }
         printf("%lld\n", ans);
     }
