@@ -14,7 +14,8 @@ vType opt(vType a, vType b) {
     return a > b ? a : b;
 }
 
-void Knapsack01(int n, int V, int w[maxn*maxc], vType v[maxn*maxc], vType dp[maxv]) {
+// weight, value
+void Knapsack01(int n, int V, int w[], vType v[], vType dp[]) {
     // 1°¢≥ı ºªØ
     for(int i = 1; i <= V; ++i) {
         dp[i] = inf;

@@ -1,22 +1,12 @@
 #include <stdio.h>
-#include <string.h>
 #include <math.h>
 
-///////////////////////////////////////////////////
-///////////////状压DP - 哈密尔顿路模板///////////////
-///////////////////////////////////////////////////
+///////////////////////////状压DP模板(哈密尔顿路)///////////////////////////
 
-/*
-1、第一步：确定 maxn 的大小
-2、第二步：确定 type 的类型
-3、第三步：确定 dptype 类型
-4、第四步：实现任意两点间距离函数：dis_func
-5、第五步：调用 HamiltonDP_Solve
-*/
-
-#define maxn 18
+#define maxn 19
 #define type double
-#define dptype 0  // 0: MIN, 1: MAX, 2: NUM
+#define inf 1000000000
+#define init 0
 typedef type(*dis_func) (int a, int b);
 
 // dp[i][j] etc, i = 1101, j = 2
@@ -29,46 +19,13 @@ type min(type a, type b) {
     return a < b ? a : b;
 }
 
-type max(type a, type b) {
-    return a > b ? a : b;
-}
-
-// 固定模板
-type HamiltonDP_opt( type a, type b, type c) {
-    if (dptype == 0) {  // MIN
-        return min(a, b + c);
-    }else if(dptype == 1) {  // MAX
-        return max(a, b + c);
-    }else if(dptype == 2) {  // NUM
-        return a + b * c;
-    }
-}
-
-// 固定模板，如果类型不是 long long基本不需要修改
-type HamiltonDP_ValueInf() {
-    if (dptype == 0) {  // MIN
-        return 1000000000;
-    }else if(dptype == 1) {  // MAX
-        return -1000000000;
-    }else if(dptype == 2) {  // NUM
-        return 0;
-    }
-}
-
-// 固定模板
-type HamiltonDP_ValueInit() {
-    if (dptype == 0) {  // MIN
-        return 0;
-    }else if(dptype == 1) {  // MAX
-        return 0;
-    }else if(dptype == 2) {  // NUM
-        return 1;
-    }
+// 需要根据实际题目进行修改，有可能是最小值，最大值 或者方案数
+type HamiltonDP_opt( type curVal, type start2i, type i2end) {
+    return min(curVal, start2i + i2end);
 }
 
 // 固定模板，计算任意两点间的距离
-// dis_func 是需要根据实际情况
-void HamiltonDP_initEdges(int n, dis_func df) {
+void hamiltonDP_initEdges(int n, dis_func df) {
     for(int i = 0; i < n; ++i) {
         for(int j = 0; j < n; ++j) {
             dis[i][j] = df(i, j);
@@ -76,64 +33,70 @@ void HamiltonDP_initEdges(int n, dis_func df) {
     }
 }
 
-// 固定模板，初始化所有状态
-// 顶点编号是 [0, n)
-void HamiltonDP_Init(int n, dis_func df) {
-    memset(dp, -1, sizeof(dp));
-    HamiltonDP_initEdges(n, df);
+// 固定模板，初始化所有状态，顶点编号是 [0, n)
+void hamiltonDP_Init(int n, dis_func df) {
+    for (int i = 0; i < (1 << n); ++i) {
+        for (int j = 0; j < n; ++j) {
+            dp[i][j] = -1;
+        }
+    }
+    hamiltonDP_initEdges(n, df);
 }
 
 // 固定模板，大部分情况不需要修改
 // state ：二进制的1101 代表 0、2、3 三个顶点已经被访问
 //     n ：总共多少个顶点
-//   pre ：路径上的上一个顶点
-type HamiltonDP_Dfs(int state, int n, int isCircle, int start, int pre) {
-    if (state + 1 == (1 << n)) {
-        type init = HamiltonDP_ValueInit();
-        type inf = HamiltonDP_ValueInf();
-        if (isCircle) {
-            return HamiltonDP_opt(inf, init, dis[pre][start]);
-        }
+// start : 路径上的起点顶点
+//   end ：路径上的终点顶点
+type hamiltonDP_Dfs(int state, int n, int start, int end) {
+    if (start == end && state == 0) {
         return init;
     }
-    if (dp[state][pre] >= 0) {
-        return dp[state][pre];
+    if (dp[state][end] >= 0) {
+        return dp[state][end];  
     }
-    type ans = HamiltonDP_ValueInf();
+    type ans = inf;
     for (int i = 0; i < n; ++i) {
-        if (state & (1 << i)) {
+        if ((state & (1 << i)) == 0) {
             continue;
         }
-        type d = dis[pre][i];
-        type next = HamiltonDP_Dfs(state | (1 << i), n, isCircle, start, i);
-        ans = HamiltonDP_opt(ans, d, next);
+        if ((state & (1 << end)) == 0) {
+            continue;
+        }
+        // start -> ... -> i -> end 为一条路径
+        type start2i = hamiltonDP_Dfs(state ^ (1 << end), n, start, i);
+        type i2end = dis[i][end];
+        ans = HamiltonDP_opt(ans, start2i, i2end);
     }
-    return dp[state][pre] = ans;
+    return dp[state][end] = ans;
 }
 
-type HamiltonDP_Solve(dis_func df, int n, int isCircle, int start) {
-    HamiltonDP_Init(n, df);
-    type ans = HamiltonDP_ValueInf();
-    type ini = HamiltonDP_ValueInit();
-    if (start == -1) {
-        for (int i = 0; i < n; ++i) {
-            type v = HamiltonDP_Dfs((1 << i), n, isCircle, i, i);
-            ans = HamiltonDP_opt(ans, v, ini);
-        }
+// 固定模板，大部分情况不需要修改
+// 求从 start 到 所有的 end 路径上的最优值
+type HamiltonDP_Solve(dis_func df, int n, int start) {
+    hamiltonDP_Init(n, df);
+    type ret = inf;
+    for(int end = 0; end < n; ++end) {
+        type ans = hamiltonDP_Dfs((1 << n) - 1, n, start, end);
+        ret = HamiltonDP_opt(ret, init, ans);
     }
-    else {
-        type v = HamiltonDP_Dfs((1 << start), n, isCircle, start, start);
-        ans = HamiltonDP_opt(ans, v, ini);
-    }
-    return ans;
+    return ret;
 }
-///////////////////////////////////////////////////
-///////////////状压DP - 哈密尔顿路模板///////////////
-///////////////////////////////////////////////////
+
+///////////////////////////状压DP模板(哈密尔顿路)///////////////////////////
+
+// 这道题目的起点是不固定的，所以可以增加一个点，这个点到所有点距离都为 0
+// 从而转换成起点固定的情况
 
 int x[maxn], y[maxn], z[maxn], w[maxn+1];
 
 type d(int a, int b) {
+    if(a == 0) {
+        return 0;
+    }
+    if(b == 0) {
+        return inf;
+    }
     int ans = (x[a]-x[b])*(x[a]-x[b])
     + (y[a]-y[b])*(y[a]-y[b])
     + (z[a]-z[b])*(z[a]-z[b]);
@@ -143,9 +106,15 @@ type d(int a, int b) {
 int main() {
     int n;
     scanf("%d", &n);
-    for(int i = 0; i < n; ++i) {
+    n++;
+    x[0] = 0;
+    y[0] = 0;
+    z[0] = 0;
+    w[0] = 0;
+    for(int i = 1; i < n; ++i) {
         scanf("%d %d %d %d", &x[i], &y[i], &z[i], &w[i]);
     }
-    printf("%.2lf\n", HamiltonDP_Solve(d, n, 0, -1));
+    type ans = HamiltonDP_Solve(d, n, 0);
+    printf("%.2lf\n", ans);
     return 0;
 }
