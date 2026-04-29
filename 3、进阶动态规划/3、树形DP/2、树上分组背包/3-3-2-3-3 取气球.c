@@ -1,96 +1,70 @@
 #include <stdio.h>
 #include <string.h>
 
-// dp[i][j] 代表以 i 作为根结点，想要得到 j 个气球的最小力气
-// KnapsackTree_GetAnswer 增加 w 参数
-//////////////////////////////////////////////////////////////////////////////
-///////////////////////////////// 树上背包模板 ////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
-// 求解数据的数据类型
+///////////////////////////////// 树上分组背包模板 ////////////////////////////////
 #define type int
-// 物品的总个数（树的顶点个数）
 #define maxn 5010
-// 总共可以选择的最大容量
 #define maxv 5010
-// 最大边数
 #define maxm 10010
+#define inf 1000000000
 
-// 物品结构体
 struct Item {
-    int vol;    // 每个物品的容量  
+    int vol;    // 每个物品的容量
     int wei;    // 每个物品的权值
-    int edge;   // 前向边权值
+    int edge;   // 注意：增加了一条前向边的权值
 }items[maxn];
 
-// 树形关系（邻接表）
-int head[maxn];
-int edge[maxm];
-int next[maxm];
+int head[maxn], edge[maxm], next[maxm];
 int cnt;
 
-// dp[i][j] 代表以i为根的子树中，选择容量总和为j的物品，得到的最优价值
+// dp[i][j] 代表以i为根的子树中
+// 想要得到 j 个气球的最小力气
 type dp[maxn][maxv];
 // sumVol[i] 代表所有子结点的容量和
 int sumVol[maxn];
 // n件物品，最大容量为V
 int n, V;
 
-void add_edge(int a, int b) {
+type min(type a, type b) {
+    return a < b ? a : b;
+}
+
+void AddEdge(int a, int b) {
     edge[cnt] = b;
     next[cnt] = head[a];
     head[a] = cnt++;
 }
 
-type min(type a, type b) {
-    return a < b ? a : b;
-}
-
-void swap(int *a, int *b) {
-    int temp = *a;
-    *a = *b;
-    *b = temp;
-}
-
-// 初始状态值
+// 1、修改点，初始状态值
 // 需要根据题目含义进行修改
-type KnapsackTree_InitValue(int u) {
+type KnapsackTreeDP_InitValue(int u) {
     return 0;
 }
 
-// 非法状态值（求最大值时选最小，求最小值时选最大）
+// 2、修改点，状态转移方程
 // 需要根据题目含义进行修改
-type KnapsackTree_InfValue() {
-    return 1000000000;
-}
-
-// 每次状态转移开始时，状态的初始值
-// 如果是加边模板，则直接返回 KnapsackTree_InfValue
-// 如果是删边模板，则需要根据 v 的值进行判定
-type KnapsackTree_CurInitValue(type dpu[maxv], int v) {
-    return KnapsackTree_InfValue();
-}
-
-// 状态转移方程
-// 需要根据题目含义进行修改
-type KnapsackTree_Opt(type curVal, type preVal, type itemWei) {
+type KnapsackTreeDP_Opt(type curVal, type preVal, type itemWei) {
     return min(curVal, preVal + itemWei);
 }
 
-// 这一步非常关键，目的是把 滚动数组 dpu 中计算出的数据，转移到 dp 上
+// 3、修改点，这一步非常关键
+// 目的是把 滚动数组 dpu 中计算出的数据，转移到 dp 上
 // dpu 是临时数据，递归结束就销毁了
 // dp 是持久化数据，递归结束一直保存
-void KnapsackTree_Post(int u, int fat, type dpu[maxv]) {
+void KnapsackTreeDP_Post(int u, type dpu[maxv]) {
     for(int j = 0; j <= V; ++j) {
         dp[u][j] = dpu[j];
     }
-    dp[u][ sumVol[u] ]   = KnapsackTree_Opt(dp[u][ sumVol[u] ], items[u].edge, 0);
-    dp[u][ sumVol[u]-1 ] = KnapsackTree_Opt(dp[u][ sumVol[u]-1 ], items[u].wei, 0);
+    // 割断绳子
+    dp[u][ sumVol[u] ]   = KnapsackTreeDP_Opt(dp[u][ sumVol[u] ], items[u].edge, 0);
+    // 戳破气球
+    dp[u][ sumVol[u]-1 ] = KnapsackTreeDP_Opt(dp[u][ sumVol[u]-1 ], items[u].wei, 0);
+
 }
 
-// 获取最优解，根据题目要求执行逻辑
-type KnapsackTree_GetAnswer(int root, int w) {
-    type ans = KnapsackTree_InfValue();
+// 4、修改点，获取最优解，根据题目要求执行逻辑
+type KnapsackTreeDP_GetAnswer(int root, int w) {
+    type ans = inf;
     for(int i = n; i >= 0; --i) {
         if(dp[root][i] <= w) {
             return i;
@@ -100,40 +74,39 @@ type KnapsackTree_GetAnswer(int root, int w) {
 }
 
 // 模版代码，基本不用改
-int KnapsackTree_Init(type dpu[2][maxv], int u) {
-    int pre = 0;
-    dpu[pre][0] = KnapsackTree_InitValue(u);
-    for(int i = 1; i <= V; ++i) {
-        dpu[pre][i] = KnapsackTree_InfValue();
-    }
-    return pre;
-}
-
-// 模版代码，基本不用改
-void KnapsackTree_DFS(int u, int fat) {
+void KnapsackTreeDP_Dfs(int u, int fat) {
+    // 1、初始化 dpu[pre][...]
     type dpu[2][maxv];
-    int pre = KnapsackTree_Init(dpu, u);
+    int pre = 0;
+    dpu[pre][0] = KnapsackTreeDP_InitValue(u);
+    for(int i = 1; i <= V; ++i) {
+        dpu[pre][i] = inf;
+    }
     int cur = 1 - pre;
     sumVol[u] = items[u].vol;
+    // 2、遍历子结点进行分组背包
     for(int i = head[u]; i != -1; i = next[i]) {
         int v = edge[i];
         if(v == fat) continue;
-        KnapsackTree_DFS(v, u);
+        KnapsackTreeDP_Dfs(v, u);
         sumVol[u] += sumVol[v];
         for(int j = 0; j <= V; ++j) {
-            dpu[cur][j] = KnapsackTree_CurInitValue(dpu[pre], j); 
+            // 以 u 为根的子树中，在总容量为 j 的情况下
+            // 选择容量总和为 j 的物品，得到的最优价值
+            // k 代表 v 子结点中选择的物品容量总和
+            // j-k 代表在 v 之前的子结点中选择的物品容量总和
+            dpu[cur][j] = inf;
             for(int k = 0; k <= j && k <= sumVol[v]; ++k) {
-                dpu[cur][j] = KnapsackTree_Opt(dpu[cur][j], dpu[pre][j-k], dp[v][k]);
+                dpu[cur][j] = KnapsackTreeDP_Opt(dpu[cur][j], dpu[pre][j-k], dp[v][k]);
             }
         }
-        swap(&pre, &cur);
+        pre ^= 1;
+        cur ^= 1;
     }
-    KnapsackTree_Post(u, fat, dpu[pre]);
+    // 3、把 滚动数组 dpu 中计算出的数据，转移到 dp 上
+    KnapsackTreeDP_Post(u, dpu[pre]);
 }
-
-//////////////////////////////////////////////////////////////////////////////
-///////////////////////////////// 树上背包模板 ////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////// 树上分组背包模板 ////////////////////////////////
 
 int main() {
     int w;
@@ -145,14 +118,14 @@ int main() {
         items[i].vol = 1;
         scanf("%d", &items[i].wei);
     }
-    items[1].edge = KnapsackTree_InfValue();
+    items[1].edge = inf;
     for (int i = 1; i <= n - 1; ++i) {
         int x, y;
         scanf("%d %d", &x, &y);
-        add_edge(x, i+1);
+        AddEdge(x, i+1);
         items[i+1].edge = y;
     }
-    KnapsackTree_DFS(1, 0);
-    printf("%d\n", KnapsackTree_GetAnswer(1, w));
+    KnapsackTreeDP_Dfs(1, 0);
+    printf("%d\n", KnapsackTreeDP_GetAnswer(1, w));
     return 0;
 }
